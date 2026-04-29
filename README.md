@@ -1,158 +1,81 @@
-# Actividad de GitHub Classroom: Propuesta de Práctica Temática (enfoque en documentación)
+# Pico W Keypad-to-LED Controller
 
-## 1) Título de la actividad
-**Diseño de Propuesta: Mini Proyecto de Sistemas en Terminal**
+A Raspberry Pi Pico W project that reads a 4x4 membrane keypad and controls 12 LEDs using fixed key-to-action mappings.
 
-> Puedes personalizar el nombre final de tu propuesta con un título temático claro, por ejemplo:
-> - “Mini Toolkit en ARM64”
-> - “Asistente de Estudio en Terminal”
-> - “Reporteador de Información del Sistema”
-> - “Organizador de Archivos”
-> - “Juego de Aprendizaje en Línea de Comandos”
+> Core behavior is preserved from the provided source logic.
 
----
+## Features
+- 4x4 keypad scanning via `Keypad` library.
+- 12 independently driven LEDs.
+- Group ON/OFF controls for two LED banks:
+  - Bank 1 (labels `1..8`) via keys `9` (ON) and `0` (OFF)
+  - Bank 2 (labels `A..D`) via keys `*` (ON) and `#` (OFF)
+- Compatible GPIO mapping for Raspberry Pi Pico W.
 
-## 2) Descripción general
-En esta actividad vas a **diseñar y documentar** la propuesta de una práctica temática pequeña para una materia de arquitectura de computadoras o programación de sistemas.
-
-Tu propuesta debe plantear un proyecto **alcanzable, claro y bien justificado**, priorizando la documentación antes de desarrollar mucho código.
-
-### Lenguaje principal (elige uno)
-- ARM64 Assembly
-- C
-- Python
-- Bash
-
-> **Nota importante sobre ARM64 Assembly:** se recomienda únicamente para programas **muy pequeños** (por ejemplo, utilerías básicas, ejercicios de manejo de registros, I/O mínima o flujo de control simple).
-
-### Enfoque obligatorio
-La prioridad de esta tarea es:
-1. Definir el caso de uso.
-2. Justificar el alcance.
-3. Diseñar estructura de repositorio.
-4. Planear pruebas básicas.
-5. Dejar una base clara para implementar después.
-
-### Restricciones de alcance
-Para mantener la actividad compatible con herramientas de IA con uso limitado (como planes gratuitos), tu proyecto debe ser pequeño y sin complejidad innecesaria.
-
-**Evita incluir:**
-- Proyectos grandes o de múltiples módulos complejos.
-- Frameworks pesados.
-- APIs pagadas.
-- Bases de datos.
-- Servicios en la nube.
-- Contenedores.
-- Dependencias complicadas o difíciles de instalar.
-
----
-
-## 3) Entregables del estudiante
-Tu repositorio debe incluir, como mínimo:
-
-- `README.md`
-- `docs/propuesta.md`
-- `docs/caso_de_uso.md`
-- `docs/estructura_repositorio.md`
-- `docs/plan_de_pruebas.md`
-
-Opcionales (si decides agregar prototipo mínimo):
-- `src/`
-- `scripts/`
-- `tests/`
-
----
-
-## 4) Estructura recomendada del repositorio
-Usa esta estructura base:
+## Repository layout
 
 ```text
-nombre-del-proyecto/
-├── README.md
-├── docs/
-│   ├── propuesta.md
-│   ├── caso_de_uso.md
-│   ├── estructura_repositorio.md
-│   └── plan_de_pruebas.md
+.
+├── CMakeLists.txt
+├── include/
 ├── src/
-│   └── main.<ext>
-├── scripts/
-│   └── run.sh
-└── tests/
-    └── test_plan.md
+│   └── main.cpp
+└── docs/
+    ├── architecture.md
+    └── wiring.md
 ```
 
----
+## Key mapping summary
+- `1..8` -> turn ON corresponding LED 1..8
+- `9` -> turn ON LEDs 1..8
+- `0` -> turn OFF LEDs 1..8
+- `A..D` -> turn ON corresponding LEDs A..D
+- `*` -> turn ON LEDs A..D
+- `#` -> turn OFF LEDs A..D
 
-## 5) Guía de contenido por archivo
+## Build/flash for Pico W (Pico SDK flow)
 
-### `README.md`
-Incluye:
-- Título del proyecto.
-- Resumen en 1 párrafo.
-- Lenguaje elegido y razón breve.
-- Alcance del proyecto (qué sí hará y qué no hará).
-- Instrucciones mínimas para ejecutar (si ya existe prototipo).
+### 1) Prerequisites
+- ARM GCC toolchain
+- CMake + Ninja/Make
+- Pico SDK installed locally
 
-### `docs/propuesta.md`
-Incluye:
-- Problema u oportunidad que atiende tu práctica.
-- Objetivo general.
-- 3 a 5 objetivos específicos.
-- Justificación técnica (por qué ese lenguaje y ese enfoque).
-- Alcance y límites.
-- Estimación de esfuerzo (pequeño, mediano de aula, etc.).
+Set SDK path:
 
-### `docs/caso_de_uso.md`
-Incluye:
-- Contexto del usuario (quién lo usaría).
-- Escenario principal paso a paso.
-- Entradas esperadas.
-- Salidas esperadas.
-- Casos límite básicos.
+```bash
+export PICO_SDK_PATH=/absolute/path/to/pico-sdk
+```
 
-### `docs/estructura_repositorio.md`
-Incluye:
-- Árbol del repositorio.
-- Descripción de cada carpeta/archivo.
-- Convenciones de nombres (archivos, scripts, funciones).
-- Estrategia para crecimiento futuro sin romper simplicidad.
+### 2) Configure and build
 
-### `docs/plan_de_pruebas.md`
-Incluye:
-- Objetivo de pruebas.
-- Lista de pruebas funcionales mínimas (5 a 10).
-- Criterios de aceptación por prueba.
-- Resultado esperado por prueba.
-- Riesgos conocidos y qué no se probará en esta etapa.
+```bash
+mkdir -p build
+cd build
+cmake ..
+cmake --build .
+```
 
----
+Output UF2 will be generated in `build/`.
 
-## 6) Criterios de evaluación sugeridos (rúbrica)
+### 3) Flash to Pico W
+1. Hold **BOOTSEL** while connecting Pico W via USB.
+2. Copy generated `.uf2` file to the mounted RPI-RP2 drive.
+3. Board reboots and runs firmware.
 
-| Criterio | Excelente (100) | Bueno (85) | Suficiente (70) | Insuficiente (<70) |
-|---|---|---|---|---|
-| Claridad de la propuesta | Problema, objetivo y alcance totalmente claros y coherentes | Claros con ligeras ambigüedades | Entendibles pero incompletos | Confusos o contradictorios |
-| Justificación técnica | Lenguaje y enfoque muy bien argumentados | Argumentación adecuada | Argumentación limitada | Sin justificación real |
-| Estructura del repositorio | Ordenada, consistente y mantenible | Ordenada con detalles menores | Funcional pero desorganizada | Estructura deficiente |
-| Caso de uso | Bien definido, realista y verificable | Definido con pocos huecos | General, poco detallado | Incompleto o irreal |
-| Plan de pruebas | Pruebas suficientes y medibles | Pruebas adecuadas | Pruebas mínimas sin detalle | Sin plan verificable |
-| Viabilidad del alcance | Proyecto pequeño, realista y ejecutable | Casi realista con ajustes menores | Riesgo de sobrealcance | No viable para el curso |
+## Run in Wokwi
+1. Create a Wokwi Raspberry Pi Pico project.
+2. Paste the supplied `diagram.json` wiring.
+3. Use firmware code equivalent to `src/main.cpp` (Arduino-style logic as provided).
+4. Start simulation and press keypad keys to observe LED states.
 
----
+## Real-hardware notes
+- Use one 220 Ω resistor in series with each LED anode.
+- Tie all LED cathodes to GND.
+- Keep keypad row/column wiring identical to `docs/wiring.md`.
+- The optional row pull-ups shown in the diagram are connected to 3V3.
 
-## 7) Instrucciones de entrega
-1. Completa todos los documentos solicitados.
-2. Verifica que tu propuesta sea consistente entre archivos.
-3. Haz commit de tu avance final.
-4. Entrega el enlace del repositorio de GitHub Classroom.
-
----
-
-## 8) Recomendaciones finales del instructor
-- Piensa primero en la **calidad de la documentación**, no en escribir mucho código.
-- Si eliges ARM64 Assembly, reduce al máximo el alcance.
-- Enfócate en un caso de uso sencillo pero bien explicado.
-- Entre más clara sea tu planeación, más fácil será implementar en la siguiente etapa.
-
-¡Éxito! La meta aquí es diseñar una propuesta sólida, pequeña y técnicamente bien pensada.
+## Wi-Fi credential handling
+This firmware does **not** use Wi-Fi. If Wi-Fi is added later:
+- keep credentials out of source control,
+- use a local config header or environment-injected build definitions,
+- provide a `config.example` without secrets.
